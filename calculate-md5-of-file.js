@@ -1,14 +1,15 @@
 const crypto = require('crypto');
 const fs = require('fs');
 
-const calculateMD5Hash = (fileName) => {
+const calculateMD5Hash = (filePath) => {
     return new Promise((resolve, reject) => {
-      const hash = crypto.createHash('md5');
-      const stream = fs.createReadStream(fileName);
-      stream.on('error', err => reject(err));
-      stream.on('data', chunk => hash.update(chunk));
-      stream.on('end', () => resolve(hash.digest('hex')));
-    });
-  }
+        const stream = fs.createReadStream(filePath);
+        const hash = crypto.createHash('md5');
+        hash.setEncoding('hex');
+        stream.pipe(hash);
+        stream.on('error', error => reject(error));
+        stream.on('end', () => resolve(hash.read()));
+    })
+}
 
-calculateMD5Hash(process.argv[2]);
+calculateMD5Hash(process.argv[2])
